@@ -7,11 +7,12 @@ const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
+const cors = require('cors');
 
 
 connectDB();
 const app = express();
-
+app.use(cors());
 app.use(express.json()); // to accept JSON data
 
 app.use("/api/user", userRoutes);
