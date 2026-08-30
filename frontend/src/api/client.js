@@ -57,8 +57,34 @@ api.interceptors.response.use(
   }
 );
 
-/** Pulls the server's human-readable message out of an axios error. */
-export const errMsg = (e, fallback = "Something went wrong") =>
-  e?.response?.data?.details?.join(", ") || e?.response?.data?.message || fallback;
+/**
+ * Turns an axios error into something a user can act on.
+ *
+ * The important case is "the API is not there at all" — no response, or an HTML
+ * 404/405 from a static host because the backend was never deployed. Reporting
+ * that as a generic failure sends people hunting for a problem with their input
+ * when the server is simply unreachable.
+ */
+export const errMsg = (e, fallback = "Something went wrong") => {
+  const res = e?.response;
+
+  if (!res) {
+    return e?.code === "ECONNABORTED"
+      ? "The server took too long to respond. Please try again."
+      : "Cannot reach the server. Check your connection, or the API may not be running.";
+  }
+
+  // A static host answering an /api/* call means no backend is deployed here.
+  const looksLikeNoApi =
+    (res.status === 404 || res.status === 405) && typeof res.data !== "object";
+  if (looksLikeNoApi) {
+    return "The API is not reachable from this site. The backend has not been deployed yet.";
+  }
+
+  if (res.status === 429) return "Too many attempts. Please wait a few minutes and try again.";
+  if (res.status >= 500) return "The server hit an error. Please try again shortly.";
+
+  return res.data?.details?.join(", ") || res.data?.message || fallback;
+};
 
 export default api;
