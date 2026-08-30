@@ -40,6 +40,45 @@ flowchart LR
 
 ---
 
+## Two topologies — pick one
+
+### A. Split: Vercel (app) + Render (API)
+
+What this repo is configured for. Static assets get a real CDN, and the two
+tiers scale independently.
+
+**The catch:** the app and API are on different domains, so the refresh cookie
+is a **third-party cookie**. It works with `SameSite=None; Secure`, but Safari
+and Brave block third-party cookies by default — so silent session restore can
+fail for those users even when everything is configured correctly.
+
+### B. Single service: everything on Render
+
+`backend/server.js` already serves `frontend/dist` when `NODE_ENV=production`,
+with a SPA fallback that does not swallow `/api/*`. So one Render service can
+serve the whole app.
+
+**Why this is often the better choice:** same origin means **no CORS, no
+third-party cookies, and no Safari problem**. It is also one deploy instead of
+two, and one URL to remember.
+
+The trade is that Node serves your static assets instead of a CDN, so first
+load is slower for far-away users. At demo scale that is not measurable.
+
+To use it, change the build command so the frontend is built too:
+
+```yaml
+buildCommand: npm install && npm install --prefix frontend && npm run build --prefix frontend
+```
+
+and set `CLIENT_URL` to the Render URL itself. Skip the Vercel steps entirely.
+
+> Verified locally: with `NODE_ENV=production`, `/` serves the SPA, `/login`
+> falls back to `index.html`, and `/api/nope` still returns JSON `404` rather
+> than HTML.
+
+---
+
 ## Order of operations
 
 Deploy in this order, because each step needs the URL from the one before:
