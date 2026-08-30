@@ -1,0 +1,28 @@
+# Alternative to render.yaml: ONE Render service serving both the API and the
+# built React app. Same origin, so no CORS and no third-party-cookie problem —
+# which is what breaks silent session restore in Safari and Brave.
+#
+# To use: rename this file to render.yaml, or point the Render blueprint at it.
+# Set CLIENT_URL to the service's own URL once Render assigns one.
+services:
+  - type: web
+    name: chatapp
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install && npm install --prefix frontend && npm run build --prefix frontend
+    startCommand: node backend/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false

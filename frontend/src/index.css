@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    @apply bg-wa-sidebar text-wa-text antialiased;
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  }
+  .dark body { @apply bg-[#0b141a] text-wa-textDark; }
+}
+
+@layer components {
+  /* The faint doodle wallpaper behind the message list. */
+  .chat-wallpaper {
+    background-color: #efeae2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23000' stroke-opacity='.035' stroke-width='1.6'%3E%3Ccircle cx='22' cy='26' r='7'/%3E%3Cpath d='M62 18h16v14H70l-4 5v-5h-4z'/%3E%3Cpath d='M96 60l6 6-6 6-6-6z'/%3E%3Cpath d='M20 86c6-8 14-8 20 0'/%3E%3Ccircle cx='84' cy='102' r='6'/%3E%3Cpath d='M44 60h14v10H50l-3 4v-4h-3z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .dark .chat-wallpaper { background-color: #0b141a; }
+
+  .bubble-tail-out::after {
+    content: ""; position: absolute; top: 0; right: -7px;
+    border-top: 8px solid #d9fdd3; border-right: 8px solid transparent;
+  }
+  .dark .bubble-tail-out::after { border-top-color: #005c4b; }
+  .bubble-tail-in::after {
+    content: ""; position: absolute; top: 0; left: -7px;
+    border-top: 8px solid #fff; border-left: 8px solid transparent;
+  }
+  .dark .bubble-tail-in::after { border-top-color: #202c33; }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-wa-green px-4 py-2.5
+           font-medium text-white transition hover:bg-wa-greenDark
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .field {
+    @apply w-full rounded-lg border border-wa-border bg-white px-3.5 py-2.5 text-sm outline-none
+           transition focus:border-wa-green focus:ring-2 focus:ring-wa-green/20
+           dark:border-wa-borderDark dark:bg-wa-sidebarDark dark:text-wa-textDark;
+  }
+  .icon-btn {
+    @apply grid h-9 w-9 place-items-center rounded-full text-wa-muted transition
+           hover:bg-black/5 dark:text-wa-mutedDark dark:hover:bg-white/10;
+  }
+}
+
+/* Slim scrollbars that only appear on hover, like the real client. */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,.18); border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); }

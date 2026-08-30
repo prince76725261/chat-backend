@@ -1,0 +1,24 @@
+# Render blueprint for the API. Render keeps a long-lived Node process, so
+# WebSockets work — which is why the API cannot live on Vercel.
+services:
+  - type: web
+    name: chatapp-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: node backend/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGO_URI
+        sync: false        # set in the dashboard, never commit it
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false        # e.g. https://your-app.vercel.app
