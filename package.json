@@ -1,34 +1,46 @@
 {
-  "name": "chat-app",
-  "version": "1.0.0",
+  "name": "whatsapp-clone",
+  "version": "2.0.0",
+  "private": true,
+  "description": "A production-style WhatsApp clone: React + Vite frontend, Express + Socket.IO + MongoDB backend",
+  "main": "backend/server.js",
   "engines": {
-    "node": ">=14.20.1"
+    "node": ">=18"
   },
-  "description": "",
-  "main": "server.js",
   "scripts": {
     "start": "node backend/server.js",
     "server": "nodemon backend/server.js",
-    "build": "npm install --legacy-peer-deps && npm install --legacy-peer-deps --prefix frontend && npm run build --prefix frontend"
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently -n API,WEB -c cyan,magenta \"npm run server\" \"npm run client\"",
+    "seed": "node backend/seed/seed.js",
+    "install:all": "npm install && npm install --prefix frontend",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend"
   },
   "keywords": [
     "mern",
-    "chat-app"
+    "chat-app",
+    "socket.io",
+    "whatsapp"
   ],
-  "author": "prince Agarwal",
+  "author": "Prince Agarwal",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "colors": "^1.4.0",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^9.0.2",
-    "express": "^4.17.1",
-    "express-async-handler": "^1.1.4",
-    "jsonwebtoken": "^9.0.1",
-    "mongodb": "^5.7.0",
-    "mongoose": "^5.12.9",
-    "nodemon": "^2.0.7",
-    "react": "^18.2.0",
-    "socket.io": "^4.1.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.1",
+    "morgan": "^1.10.0",
+    "socket.io": "^4.7.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.4"
   }
 }
