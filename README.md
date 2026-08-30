@@ -279,6 +279,7 @@ when their **last** socket disconnects.
 | `npm run server` | API only, with nodemon |
 | `npm run client` | Vite dev server only |
 | `npm run seed` | Reset and repopulate the database |
+| `npm run db:check` | Diagnose a MongoDB connection string before deploying |
 | `npm run build` | Production build of the frontend |
 | `npm start` | Run the API in production mode |
 | `npm run install:all` | Install both dependency trees |
@@ -314,9 +315,19 @@ Your Node is older than 20.19. Run `nvm use` (the repo pins Node 22 via `.nvmrc`
 Another dev server is running. Vite picks the next free port — read the actual
 URL it prints. The API proxy follows automatically.
 
+**Any MongoDB connection problem**
+Run `npm run db:check` — it parses the URI, warns about encoding mistakes, and
+explains the driver's error. Pass a string directly to test one before committing
+to it: `npm run db:check -- "mongodb+srv://..."`.
+
 **`ServerSelectionTimeoutError` / `ECONNREFUSED 127.0.0.1:27017`**
 No local MongoDB. Either start one (`brew services start mongodb-community`) or
 point `MONGO_URI` at Atlas.
+
+**Atlas says `bad auth : Authentication failed`**
+The URI and network are fine — only the credentials are wrong. The database user
+in Atlas → **Database Access** is separate from your Atlas login account. See
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#two-mistakes-that-account-for-almost-every-failure).
 
 **Atlas connects locally but not from a deployment**
 Add the host's IP to Atlas **Network Access**. Many platforms use dynamic egress

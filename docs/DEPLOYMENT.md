@@ -111,8 +111,54 @@ Deploy in this order, because each step needs the URL from the one before:
    mongodb+srv://appuser:s3cret@cluster0.ab12c.mongodb.net/whatsapp_clone?retryWrites=true&w=majority
    ```
 
-If the password contains `@ : / # ?`, percent-encode it (`@` → `%40`) or the URI
-will not parse.
+### Check the string before you deploy
+
+```bash
+npm run db:check -- "mongodb+srv://user:pass@cluster.xxxxx.mongodb.net/whatsapp_clone"
+```
+
+It prints the parsed host, user and database (password redacted), warns about
+encoding mistakes, and turns the driver's terse errors into a diagnosis. Run
+this before touching Render — it turns a 10-minute deploy loop into 10 seconds.
+
+### Two mistakes that account for almost every failure
+
+**1. The database user is not your Atlas login.** Atlas → **Database Access**
+is a separate list from your account. A username like `Prince kumar singh` is
+usually the *display name* of your Atlas account, not a database user, and
+authenticating with it gives `bad auth : Authentication failed`.
+
+**2. Special characters must be percent-encoded.** `@ : / + # ? space` all have
+meaning in a URI:
+
+| Character | Encoded |
+|---|---|
+| `@` | `%40` |
+| `+` | `%2B` |
+| space | `%20` |
+| `/` | `%2F` |
+| `:` | `%3A` |
+| `#` | `%23` |
+
+An unencoded `@` in the password is especially confusing: the driver splits at
+the **first** `@`, so part of your password is read as the hostname and you get
+`querySrv EBADNAME` — an error that says nothing about passwords.
+
+**The simplest fix for both:** create a database user with a plain alphanumeric
+name and password, e.g. `chatapp` / `Chat2026Secure`. No encoding needed.
+
+### Reading the error you get
+
+| Error | What it means |
+|---|---|
+| `bad auth : Authentication failed` | URI is fine, cluster reached, IP allowed. **Only the credentials are wrong.** |
+| `MongooseServerSelectionError` / `ETIMEDOUT` | Cannot reach the cluster. Almost always **Network Access** — add your IP. |
+| `querySrv EBADNAME` | Malformed URI — usually an unencoded `@` in the password. |
+| `MongoParseError` | Malformed URI, caught before connecting. |
+
+Note the useful distinction: an IP that is *not* allow-listed **times out**; it
+does not give an auth error. So `bad auth` actually tells you the network side
+is already working.
 
 **Seed it** (optional) by pointing your local `.env` at Atlas and running
 `npm run seed`. Remember this **wipes** the collections first.
